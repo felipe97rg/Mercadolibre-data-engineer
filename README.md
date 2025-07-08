@@ -47,20 +47,27 @@ Total gastado (sum_pays_prev3w)
 
 Estas features permiten capturar el comportamiento pasado del usuario y serán claves para el modelo predictivo.
 
-6. Modularización del script y legibilidad profesional
+6. Modularización del script y legibilidad profesional:
+
 El script feature_builder_polars.py fue diseñado en forma modular, utilizando funciones limpias y reutilizables para cada paso del proceso. Esto facilita el mantenimiento, testing y futura extensión del pipeline.
 
 Las funciones clave implementadas son:
 
 Función	Propósito
-build_join_key(df)	Crea una clave única combinando day, user_id, value_prop para detectar clics
-get_last_week_prints(prints)	Filtra los prints que ocurrieron en la última semana del dataset
-mark_clicks(last_week_prints, taps)	Marca con 1 los prints que tuvieron un tap en la misma fecha
-get_historical_aggregates(...)	Calcula agregaciones históricas (prints, taps y pagos en 3 semanas previas)
-build_training_dataset(...)	Combina todos los pasos anteriores para construir el dataset final
-main()	Ejecuta el pipeline completo, desde la carga hasta la escritura en formato Parquet
+build_join_key(df): Crea una clave única combinando day, user_id, value_prop para detectar clics.
 
-7. Eficiencia y formato del output
+get_last_week_prints(prints):   	Filtra los prints que ocurrieron en la última semana del dataset.
+
+mark_clicks(last_week_prints, taps):	Marca con 1 los prints que tuvieron un tap en la misma fecha.
+
+get_historical_aggregates(...):	Calcula agregaciones históricas (prints, taps y pagos en 3 semanas previas).
+
+build_training_dataset(...):	Combina todos los pasos anteriores para construir el dataset final.
+
+main():	Ejecuta el pipeline completo, desde la carga hasta la escritura en formato Parquet.
+
+7. Eficiencia y formato del output:
+
 Se utilizó la librería Polars por su alto rendimiento en procesamiento de datos tabulares. El dataset final se guardó en formato Parquet, lo cual permite una compresión eficiente y una lectura rápida para tareas posteriores de modelado.
 
 
