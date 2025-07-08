@@ -18,19 +18,23 @@ Construir un dataset final que contenga, para cada impresión (*print*) de la ú
  Decisiones Técnicas Tomadas
 Durante la exploración y el desarrollo del pipeline de datos, se tomaron las siguientes decisiones clave para asegurar la calidad, eficiencia y escalabilidad del dataset final:
 
-1. Expansión de columnas estructuradas
+1. Expansión de columnas estructuradas:
+
 Los archivos prints.json y taps.json contenían una columna event_data con información estructurada (tipo Struct). Esta fue expandida en columnas planas (position, value_prop, etc.) para facilitar el análisis y la construcción de features.
 
-2. Estandarización temporal
-Se cambio el nombre de la columna de fecha (pay_day) por (day) en el archivo pays para que fuera igual que en todos los dataframes y se normalizo a un formato date, se generaron columnas auxiliares como week. Esto permitió aplicar filtros por semana y construir ventanas de tiempo móviles de manera consistente.
+2. Estandarización temporal:
 
-3. Limpieza de datos
+Se cambio el nombre de la columna de fecha (pay_date) por (day) en el dataframe del archivo pays.csv para que fuera igual que en todos los dataframes y se normalizo a un formato date, se generaron columnas auxiliares como week. Esto permitió aplicar filtros por semana y construir ventanas de tiempo móviles de manera consistente.
+
+3. Limpieza de datos:
 Se aplicó una función de limpieza uniforme que elimina duplicados y nulos, asegurando que los datos a procesar sean únicos y relevantes. Este paso fue especialmente importante para evitar sobrecontar impresiones, clics o pagos.
 
-4. Identificación de clics (taps)
+4. Identificación de clics (taps):
+
 Para determinar si una impresión fue clickeada, se creó una clave única combinando day, user_id y value_prop. Esta clave fue usada para realizar un left join eficiente entre prints y taps, generando la variable binaria clicked.
 
-5. Agregaciones históricas
+5. Agregaciones históricas:
+
 Se construyeron variables históricas para cada combinación (user_id, value_prop) en las 3 semanas previas a cada impresión de la última semana:
 
 Cantidad de impresiones (n_prints_prev3w)
