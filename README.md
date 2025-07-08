@@ -17,7 +17,7 @@ Construir un dataset final que contenga, para cada impresión (*print*) de la ú
 ---
 
 ## 📂 Estructura del proyecto
-
+```bash
 MercadoPago/
 ├── src/
 │ ├── data_loader_polars.py # Módulo para cargar y limpiar datos
@@ -27,7 +27,7 @@ MercadoPago/
 │ └── final_dataset.parquet # Dataset final generado
 ├── requirements.txt # Dependencias
 └── README.md # Este archivo
-
+```
 
 ---
 
@@ -40,15 +40,16 @@ Instalar las dependencias necesarias con:
 ```bash
 pip install -r requirements.txt
 
-
+```
 Cómo ejecutar el pipeline
-
+```bash
 Coloca los archivos prints.json, taps.json y pays.csv en la carpeta data/.
+```
 
 Ejecuta el script principal:
-
+```bash
 python src/feature_builder_polars.py
-
+```
 El dataset final se guardará automáticamente como archivo .parquet comprimido en:
-
+```bash
 output/final_dataset.parquet
