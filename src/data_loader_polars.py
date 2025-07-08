@@ -5,7 +5,9 @@ from pathlib import Path
 DATA_DIR = Path("data")
 
 def expand_event_data(df: pl.DataFrame) -> pl.DataFrame:
+
     """Expande la columna event_data si existe y es tipo Struct"""
+    # Verificar si la columna 'event_data' existe y es de tipo Struct
     if "event_data" in df.columns and df.schema["event_data"] == pl.Struct:
         # Extraer la columna struct y expandirla
         expanded = df.select("event_data").unnest("event_data")
@@ -15,40 +17,40 @@ def expand_event_data(df: pl.DataFrame) -> pl.DataFrame:
 
 def add_temporal_features(df: pl.DataFrame) -> pl.DataFrame:
     """
-    Detecta una columna de fecha y crea columnas 'timestamp', 'day' y 'week'.
-    Usa to_date() para strings tipo 'YYYY-MM-DD'.
+    Asegura que exista una columna 'day' en formato fecha y
+    genera la columna auxiliar 'week' correspondiente.
+    Si 'pay_date' existe, la renombra a 'day' para unificar el tratamiento.
     """
-    posibles_fechas = ["timestamp", "pay_date", "day"]
-    fecha_col = next((col for col in posibles_fechas if col in df.columns), None)
+    # Renombrar 'pay_date' a 'day' si existe
+    if "pay_date" in df.columns and "day" not in df.columns:
+        df = df.rename({"pay_date": "day"})
 
-    if not fecha_col:
-        raise ValueError("No se encontró ninguna columna de fecha válida.")
+    # Verificar que existe 'day'
+    if "day" not in df.columns:
+        raise ValueError("No se encontró ninguna columna de fecha válida (ni 'day' ni 'pay_date').")
 
-    tipo_col = df.schema[fecha_col]
+    # Detectar tipo de columna
+    tipo_col = df.schema["day"]
 
-    # Si es string, convertir con str.to_date
+    # Si es string, convertirla a tipo fecha
     if tipo_col == pl.Utf8:
         df = df.with_columns([
-            pl.col(fecha_col).str.to_date(strict=False).alias("timestamp")
-        ])
-    else:
-        df = df.with_columns([
-            pl.col(fecha_col).alias("timestamp")
+            pl.col("day").str.to_date(strict=False)
         ])
 
-    # Agregar columnas auxiliares
+    # Generar columna de semana
     df = df.with_columns([
-        pl.col("timestamp").dt.date().alias("day"),
-        pl.col("timestamp").dt.week().alias("week")
+        pl.col("day").dt.week().alias("week")
     ])
 
     return df
 
 
 
-
 def clean_df(df: pl.DataFrame, name="") -> pl.DataFrame:
+
     """Elimina duplicados y nulos"""
+
     before = df.shape[0]
     df = df.unique().drop_nulls()
     after = df.shape[0]
@@ -57,6 +59,9 @@ def clean_df(df: pl.DataFrame, name="") -> pl.DataFrame:
 
 
 def load_prints():
+
+    """Carga el dataset de prints y lo limpia"""
+
     path = DATA_DIR / "prints.json"
     df = pl.read_ndjson(path)
     df = expand_event_data(df)
@@ -66,6 +71,9 @@ def load_prints():
 
 
 def load_taps():
+
+    """Carga el dataset de taps y lo limpia"""
+
     path = DATA_DIR / "taps.json"
     df = pl.read_ndjson(path)
     df = expand_event_data(df)
@@ -75,6 +83,9 @@ def load_taps():
 
 
 def load_pays():
+
+    """Carga el dataset de pays y lo limpia"""
+
     path = DATA_DIR / "pays.csv"
     df = pl.read_csv(path)
     df = add_temporal_features(df)
@@ -83,6 +94,9 @@ def load_pays():
 
 
 def load_all_data():
+
+    """Carga todos los datasets y los devuelve como tupla"""
+
     prints = load_prints()
     taps = load_taps()
     pays = load_pays()
